@@ -1,5 +1,12 @@
 import countriesCard from "./templates/card.hbs";
+import countriesList from "./templates/card-list.hbs";
+import API from "./js/fetchCountries";
 import debounce from "lodash.debounce";
+
+import pnotify from "./js/pnotife";
+
+import "@pnotify/core/dist/PNotify.css";
+import "@pnotify/core/dist/BrightTheme.css";
 
 const refs = {
   searchForm: document.querySelector(".js-search-form"),
@@ -7,35 +14,36 @@ const refs = {
 };
 
 refs.searchForm.addEventListener("input", debounce(onSearch, 500));
-// function onSearch(e) {
-//   e.preventDefault();
-//   const searchQuery = refs.searchForm.elements.query.value;
-//   fetch(`https://restcountries.eu/rest/v2/name/${searchQuery}`)
-//     .then(r => r.json())
-//     .then(card => {
-//       const markup = regionCard(card);
-//       refs.card.innerHTML = markup;
-//       console.log(markup);
-//     });
-// }
 
 function onSearch(e) {
   e.preventDefault();
+  clearRenderCountriesCard();
   const searchQuery = refs.searchForm.elements.query.value;
-  fetchCountries(searchQuery)
-    .then(renderCountriesCard)
+  API.fetchCountries(searchQuery)
+    .then(searchResultat)
     .catch(error => console.log(error));
 }
-function fetchCountries(searchQuery) {
-  return fetch(`https://restcountries.eu/rest/v2/name/${searchQuery}`).then(
-    response => {
-      return response.json();
-    }
-  );
-}
 
-function renderCountriesCard(countries) {
-  const markup = countriesCard(countries);
+function searchResultat(countries) {
+  const numberCountries = countries.length;
+
+  if (numberCountries === 1) {
+    renderCountriesCard(countries, countriesCard);
+  } else if (numberCountries >= 2 && numberCountries <= 10) {
+    renderCountriesCard(countries, countriesList);
+  } else if (numberCountries >= 10) {
+    clearRenderCountriesCard();
+    pnotify.Info();
+  } else {
+    clearRenderCountriesCard();
+    pnotify.Error();
+  }
+}
+function renderCountriesCard(countries, templateHbs) {
+  const markup = templateHbs(countries);
   refs.card.innerHTML = markup;
   console.log(markup);
+}
+function clearRenderCountriesCard() {
+  refs.card.innerHTML = "";
 }

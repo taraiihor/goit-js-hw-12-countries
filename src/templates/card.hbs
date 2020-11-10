@@ -3,13 +3,12 @@
     <h2>{{name}}</h2>
     <div>
         <p>{{capital}}</p>
-        <p>{{region}}</p>
         <p>{{population}}</p>
         <ul>{{#each languages}}
             <li>{{name}}</li>{{/each}}</ul>
     </div>
     <div>
-        <img src="{{flag}}" alt="">
+        <img src="{{flag}}" alt="{{name}}" width="200">
     </div>
 </div>
 {{/each}}
